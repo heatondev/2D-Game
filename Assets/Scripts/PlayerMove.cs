@@ -5,41 +5,46 @@ using UnityEngine;
 public class PlayerMove : MonoBehaviour
 {
     public Transform Player;
-    public int speed = 5;
-    public int jump = 5;
-    float _moveX;
-    float _moveY;
+    public Animator animator;
+    public CharacterController2D controller;
+    float horizontalMove;
+    public float runSpeed = 40f;
+    bool jump = false;
 
-    
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
 
-    // Update is called once per frame
     void Update()
     {
-        _moveX = Input.GetAxis("Horizontal");
-        _moveY = Input.GetAxis("Vertical");
+        horizontalMove = Input.GetAxisRaw("Horizontal")*runSpeed;
+        if (Input.GetButton("Run"))
+        {
+            runSpeed = 40f;
+            Debug.Log("Run button has been pushed");
+           
+        }
+        if (Input.GetButtonDown("Fire1"))
+        {
+            animator.SetBool("fire", true);
+        }
+        if (Input.GetButtonDown("Jump"))
+        {
+            jump = true;
+            animator.SetBool("isJumping", true);
+        }
+        animator.SetFloat("speed", Mathf.Abs(horizontalMove));
+       // Debug.Log(runSpeed);
+    }
 
-        movePlayer(speed);
-        
-        /*  if (Input.GetKeyDown(KeyCode.D)){
-              transform.Translate(Vector2.right * Time.deltaTime * _speed);
-          } */
-        
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            jumpPlayer(jump);
-        }
-    }
-    void movePlayer(int pSpeed)
+    public void OnLanding()
     {
-        transform.Translate(new Vector2(_moveX, _moveY) * Time.deltaTime * pSpeed);
+        animator.SetBool("isJumping", false);
     }
-        void jumpPlayer(int pJump)
-        {
-            transform.Translate(new Vector2(0, 1) * Time.deltaTime * pJump);
-        }
+
+    
+    // Update is called once per frame
+    void FixedUpdate()
+    {
+        controller.Move(horizontalMove * Time.fixedDeltaTime, false, jump);
+        jump = false;
+    }
+   
 }
